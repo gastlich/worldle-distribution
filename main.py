@@ -5,6 +5,7 @@ import worldle
 from scipy.spatial.distance import cdist
 from scipy.optimize import linear_sum_assignment
 import numpy as np
+from urllib import parse
 
 SHOW_COUNTRIES = False
 
@@ -118,7 +119,9 @@ def generate_markdown_for_member(member_index, countries):
     print(f"| Country | Longitude | Latitude | Google Maps |")
     print(f"| ------- | --------- | -------- | ----------- |")
     for country in countries:
-        print(f"| {country[2]} | {country[0]} | {country[1]} | ![Link](https://www.google.co.uk/maps/place/{country[2]}/)")
+        print(
+            f"| {country[2]} | {country[0]} | {country[1]} | [Link](https://www.google.co.uk/maps/place/{parse.quote_plus(country[2])}/)"
+        )
 
 
 generate_markdown()
