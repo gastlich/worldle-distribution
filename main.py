@@ -1,13 +1,12 @@
-import csv
 from itertools import groupby
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
 import worldle
-import official
-from collections import Counter
 from scipy.spatial.distance import cdist
 from scipy.optimize import linear_sum_assignment
 import numpy as np
+
+SHOW_COUNTRIES = False
 
 TEAMMEMBERS = [
     "Nihar",
@@ -37,8 +36,6 @@ def plot_countries(longitudes, latitudes, labels, colours=None, title=None):
 
     for i, label in enumerate(labels):
         plt.annotate(label, (longitudes[i], latitudes[i]))
-
-    plt.show()
 
 
 def make_clusters_even(clusters, cordinates):
@@ -74,31 +71,54 @@ def group_by_cluster(longitudes, latitudes, labels, clusters):
     )
 
 
-countries = worldle.get_countries()
-country_tuples = get_country_tuples(countries)
-longitudes, latitudes, labels = zip(*(country_tuples))
+def generate_markdown():
+    countries = worldle.get_countries()
+    country_tuples = get_country_tuples(countries)
+    longitudes, latitudes, labels = zip(*(country_tuples))
 
-clusters = even_kmeans_countries(longitudes, latitudes)
-plot_countries(
-    longitudes,
-    latitudes,
-    labels,
-    colours=clusters,
-    title=f"Even cluster distribution among {len(TEAMMEMBERS)} team members.",
-)
+    clusters = even_kmeans_countries(longitudes, latitudes)
+    plot_countries(
+        longitudes,
+        latitudes,
+        labels,
+        colours=clusters,
+        title=f"Even cluster distribution among {len(TEAMMEMBERS)} team members.",
+    )
+    plt.savefig(f"images/total.png")
+    if SHOW_COUNTRIES:
+        plt.show()
 
-grouped_countries = group_by_cluster(longitudes, latitudes, labels, clusters)
+    print(f"# Even cluster distribution among {len(TEAMMEMBERS)} team members.")
+    print(
+        f"![All countries](https://github.com/gastlich/worldle-distribution/blob/main/images/total.png?raw=true)"
+    )
 
-for i, countries in grouped_countries:
+    grouped_countries = group_by_cluster(longitudes, latitudes, labels, clusters)
+
+    for member_index, countries in grouped_countries:
+        generate_markdown_for_member(member_index, countries)
+
+
+def generate_markdown_for_member(member_index, countries):
     countries = list(countries)
     unzipped_countries = zip(*list(countries))
     longitudes, latitudes, labels, cluster = unzipped_countries
 
-    member = TEAMMEMBERS[i]
+    member = TEAMMEMBERS[member_index]
     plot_countries(longitudes, latitudes, labels, title=member)
+    plt.savefig(f"images/{member.lower()}.png")
+    if SHOW_COUNTRIES:
+        plt.show()
 
-    print(f"➡️  {member} is going to learn the following {len(countries)} countries:")
+    print(f"\n\n# {member} is going to learn the following {len(countries)} countries:")
+    print(
+        f"![{member}'s countries](https://github.com/gastlich/worldle-distribution/blob/main/images/{member.lower()}.png?raw=true)\n"
+    )
+
+    print(f"| Country | Longitude | Latitude | Google Maps |")
+    print(f"| ------- | --------- | -------- | ----------- |")
     for country in countries:
-        print(f"{country[2]} ({country[0]}, {country[1]})")
+        print(f"| {country[2]} | {country[0]} | {country[1]} | ![Link](https://www.google.co.uk/maps/place/{country[2]}/)")
 
-    print()
+
+generate_markdown()
