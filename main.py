@@ -11,13 +11,14 @@ SHOW_COUNTRIES = False
 
 TEAMMEMBERS = [
     "Nihar",
-    "Prathap",
+    "Sam",
     "Anitha",
     "Suresh",
     "Sonam",
     "Sandeep",
     "Jacek",
     "Blake",
+    "Johnnie",
 ]
 
 N_CLUSTERS = len(TEAMMEMBERS)
